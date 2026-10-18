@@ -8,6 +8,8 @@ Base adaptada do sistema Freskinho. Por enquanto tem:
 - Login com e-mail/senha e Google (com vínculo de conta quando o e-mail já tem senha)
 - Funcionários com campo `admin`, telas de admin protegidas por `RequireAdmin` + PIN de admin
 - Caixa: abrir, fechar (com conferência da gaveta), sangria/suprimento e reabrir o último fechado
+- Insumos (`/insumos`, só admin): catálogo do fornecedor importado da tabela de preços,
+  insumos apontando pro catálogo, com custo por kg/L/un, rendimento e estoque
 - PWA (manifest + ícones) e regras do Firestore liberando tudo só pra usuário logado
 
 Marca provisória: paleta neutra em `src/app/globals.css` (`--marca-primaria` /
@@ -39,4 +41,8 @@ e pros scripts.
 
 - `npm run test:caixa` — testa o fluxo do caixa e as regras no emulador do Firebase (precisa de Java).
 - `npx tsx scripts/marcar-admin.mts "Nome" --confirmar` — marca funcionários existentes como admin.
+- `npx tsx scripts/importar-catalogo.mts --confirmar` — importa `dados/tabela-big-alimentos.txt`
+  (ou o arquivo passado como argumento) pra `catalogo_fornecedor`. Sem `--confirmar` é dry run:
+  lista os itens, as linhas que falharam, os duplicados, os marcados "falta quantidade" e,
+  na reimportação, quem subiu e quem desceu de preço.
 - `npx tsx scripts/gerar-icones-pwa.mts` — regenera os ícones da PWA.

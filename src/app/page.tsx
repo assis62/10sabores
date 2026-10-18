@@ -16,6 +16,15 @@ function IconeCaixaDinheiro() {
   );
 }
 
+function IconeCaixote() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" aria-hidden="true">
+      <path d="M3 8.5 12 4l9 4.5-9 4.5-9-4.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+      <path d="M3 8.5v7L12 20l9-4.5v-7M12 13v7" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 function IconePessoas() {
   return (
     <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" aria-hidden="true">
@@ -50,6 +59,12 @@ const ATALHOS = [
     href: "/caixa",
     label: "Caixa",
     Icone: IconeCaixaDinheiro,
+  },
+  {
+    href: "/insumos",
+    label: "Insumos",
+    Icone: IconeCaixote,
+    somenteAdmin: true,
   },
   {
     href: "/funcionarios",

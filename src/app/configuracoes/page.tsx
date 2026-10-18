@@ -49,7 +49,7 @@ export default function ConfiguracoesPage() {
           <h2 className="text-lg font-semibold">Segurança</h2>
           <p className="text-sm text-gray-500 mt-1">
             PIN de admin (4 a 6 dígitos), pedido uma vez por sessão do navegador pra abrir
-            Funcionários e Configurações. Quem já digitou o PIN antigo nesta sessão continua
+            Insumos, Funcionários e Configurações. Quem já digitou o PIN antigo nesta sessão continua
             liberado até fechar a aba.
           </p>
         </div>

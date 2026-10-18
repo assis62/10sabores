@@ -12,6 +12,8 @@ type ItemMenu = { href: string; label: string; somenteAdmin?: boolean };
 
 const ITENS_DIRETOS = [{ href: "/caixa", label: "Caixa" }];
 
+const GRUPO_PRODUCAO: ItemMenu[] = [{ href: "/insumos", label: "Insumos", somenteAdmin: true }];
+
 const GRUPO_EQUIPE: ItemMenu[] = [{ href: "/funcionarios", label: "Funcionários", somenteAdmin: true }];
 
 const GRUPO_SISTEMA: ItemMenu[] = [{ href: "/configuracoes", label: "Configurações", somenteAdmin: true }];
@@ -36,7 +38,7 @@ export default function NavBar() {
   const maisRef = useRef<HTMLDivElement>(null);
   const { admin } = useAuth();
 
-  const gruposMais = [GRUPO_EQUIPE, GRUPO_SISTEMA]
+  const gruposMais = [GRUPO_PRODUCAO, GRUPO_EQUIPE, GRUPO_SISTEMA]
     .map((grupo) => grupo.filter((item) => admin || !item.somenteAdmin))
     .filter((grupo) => grupo.length > 0);
 
