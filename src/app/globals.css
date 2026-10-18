@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+/* Paleta neutra PROVISÓRIA — as cores da marca 10 Sabores ainda vão ser
+   definidas. Pra trocar, basta mudar as duas variáveis --marca-* abaixo (e o
+   theme_color/background do manifest.json, o themeColor do layout.tsx e a
+   COR_FUNDO de scripts/gerar-icones-pwa.mts). */
+:root {
+  color-scheme: light;
+  --background: #ffffff;
+  --foreground: #171717;
+  --marca-primaria: #27272a;
+  --marca-destaque: #d4d4d8;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-marca-primaria: var(--marca-primaria);
+  --color-marca-destaque: var(--marca-destaque);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* O app sempre usa o tema claro, mesmo que o sistema/navegador esteja em modo
+   escuro — por isso NÃO há um @media (prefers-color-scheme: dark) aqui. Isso
+   evita a classe de bug de contraste de texto sem cor explícita (herdando
+   --foreground, que ficaria quase branco em modo escuro). */
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Barra de navegação: permite arrastar os itens horizontalmente em telas
+   estreitas sem que a rolagem vaze pra página inteira, com um scrollbar
+   fino sempre visível como indicação de que dá pra arrastar. */
+.navbar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.4) transparent;
+}
+
+.navbar-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+
+.navbar-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.4);
+  border-radius: 9999px;
+}
+
+.navbar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
