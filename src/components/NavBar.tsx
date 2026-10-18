@@ -12,7 +12,10 @@ type ItemMenu = { href: string; label: string; somenteAdmin?: boolean };
 
 const ITENS_DIRETOS = [{ href: "/caixa", label: "Caixa" }];
 
-const GRUPO_PRODUCAO: ItemMenu[] = [{ href: "/insumos", label: "Insumos", somenteAdmin: true }];
+const GRUPO_PRODUCAO: ItemMenu[] = [
+  { href: "/produtos", label: "Produtos", somenteAdmin: true },
+  { href: "/insumos", label: "Insumos", somenteAdmin: true },
+];
 
 const GRUPO_EQUIPE: ItemMenu[] = [{ href: "/funcionarios", label: "Funcionários", somenteAdmin: true }];
 

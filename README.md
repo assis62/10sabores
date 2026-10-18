@@ -9,7 +9,10 @@ Base adaptada do sistema Freskinho. Por enquanto tem:
 - Funcionários com campo `admin`, telas de admin protegidas por `RequireAdmin` + PIN de admin
 - Caixa: abrir, fechar (com conferência da gaveta), sangria/suprimento e reabrir o último fechado
 - Insumos (`/insumos`, só admin): catálogo do fornecedor importado da tabela de preços,
-  insumos apontando pro catálogo, com custo por kg/L/un, rendimento e estoque
+  insumos apontando pro catálogo (ou manuais, com custo digitado), com custo por kg/L/un,
+  rendimento e estoque
+- Produtos (`/produtos`, só admin): ficha técnica com custo em tempo real, linhas reservadas
+  pra insumos ainda não cadastrados, preço sugerido pela margem e duplicar produto
 - PWA (manifest + ícones) e regras do Firestore liberando tudo só pra usuário logado
 
 Marca provisória: paleta neutra em `src/app/globals.css` (`--marca-primaria` /

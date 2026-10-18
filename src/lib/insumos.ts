@@ -1,7 +1,7 @@
 import { addDoc, collection, doc, onSnapshot, serverTimestamp, updateDoc } from "firebase/firestore";
-import { calcularCustoBase } from "@/lib/custos";
+import { calcularCustoBase, normalizarBusca } from "@/lib/custos";
 import { db } from "@/lib/firebase";
-import type { ItemCatalogo } from "@/types/catalogo";
+import type { ItemCatalogo, UnidadeBase } from "@/types/catalogo";
 import type { Insumo } from "@/types/insumo";
 
 const catalogoCol = collection(db, "catalogo_fornecedor");
@@ -37,9 +37,36 @@ export async function adicionarInsumo(item: ItemCatalogo, insumos: Insumo[]) {
   });
 }
 
+// Insumo sem item do catálogo (caixa de pizza, massa caseira), com custo
+// digitado em R$ por unidade base.
+export async function criarInsumoManual(
+  nome: string,
+  unidadeBase: UnidadeBase,
+  custoManual: number,
+  insumos: Insumo[],
+) {
+  const nomeLimpo = nome.trim();
+  if (!nomeLimpo) throw new Error("Informe o nome do insumo.");
+  if (!(custoManual >= 0)) throw new Error("Informe um custo válido.");
+  const repetido = insumos.some(
+    (i) => i.ativo && !i.catalogo_id && normalizarBusca(i.nome ?? "") === normalizarBusca(nomeLimpo),
+  );
+  if (repetido) throw new Error("Já existe um insumo manual com esse nome.");
+  return addDoc(insumosCol, {
+    catalogo_id: null,
+    nome: nomeLimpo,
+    custo_manual: custoManual,
+    rendimento: 100,
+    estoque_atual: 0,
+    estoque_minimo: 0,
+    unidade_base: unidadeBase,
+    ativo: true,
+  });
+}
+
 export async function atualizarInsumo(
   id: string,
-  campos: Partial<Pick<Insumo, "rendimento" | "estoque_atual" | "estoque_minimo">>,
+  campos: Partial<Pick<Insumo, "rendimento" | "estoque_atual" | "estoque_minimo" | "custo_manual">>,
 ) {
   return updateDoc(doc(insumosCol, id), campos);
 }

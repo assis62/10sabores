@@ -2,15 +2,13 @@
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import AdicionarDoCatalogoModal from "@/components/AdicionarDoCatalogoModal";
-import {
-  calcularCustoInsumo,
-  custoNaReferencia,
-  formatarPesoVolume,
-  formatarReais,
-} from "@/lib/custos";
+import InsumoManualModal from "@/components/InsumoManualModal";
+import { custoNaReferencia, formatarPesoVolume, formatarReais } from "@/lib/custos";
+import { resolverInsumo } from "@/lib/fichaTecnica";
 import {
   adicionarInsumo,
   atualizarInsumo,
+  criarInsumoManual,
   listenCatalogo,
   listenInsumos,
   removerInsumo,
@@ -137,6 +135,7 @@ export default function InsumosPage() {
   const [carregandoCatalogo, setCarregandoCatalogo] = useState(true);
   const [carregandoInsumos, setCarregandoInsumos] = useState(true);
   const [modalAberto, setModalAberto] = useState(false);
+  const [modalManualAberto, setModalManualAberto] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
   useEffect(() => {
@@ -156,11 +155,18 @@ export default function InsumosPage() {
 
   const catalogoPorId = useMemo(() => new Map(catalogo.map((item) => [item.id, item])), [catalogo]);
   const emUso = useMemo(() => insumos.filter((i) => i.ativo), [insumos]);
-  const idsEmUso = useMemo(() => new Set(emUso.map((i) => i.catalogo_id)), [emUso]);
+  const idsEmUso = useMemo(
+    () => new Set(emUso.flatMap((i) => (i.catalogo_id ? [i.catalogo_id] : []))),
+    [emUso],
+  );
 
   const linhas = emUso
-    .map((insumo) => ({ insumo, item: catalogoPorId.get(insumo.catalogo_id) }))
-    .sort((a, b) => (a.item?.nome ?? "").localeCompare(b.item?.nome ?? ""));
+    .map((insumo) => ({
+      insumo,
+      item: insumo.catalogo_id ? catalogoPorId.get(insumo.catalogo_id) : undefined,
+      resolvido: resolverInsumo(insumo, catalogoPorId),
+    }))
+    .sort((a, b) => a.resolvido.nome.localeCompare(b.resolvido.nome));
 
   const faltaQuantidade = catalogo
     .filter((item) => item.falta_quantidade && item.na_tabela !== false)
@@ -191,14 +197,24 @@ export default function InsumosPage() {
     <main className="max-w-5xl mx-auto p-6 w-full flex flex-col gap-6">
       <div className="flex items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold">Insumos</h1>
-        <button
-          type="button"
-          disabled={carregando}
-          onClick={() => setModalAberto(true)}
-          className="bg-marca-destaque text-marca-primaria font-medium rounded px-4 py-2 disabled:opacity-50"
-        >
-          Adicionar do catálogo
-        </button>
+        <div className="flex flex-wrap justify-end gap-2">
+          <button
+            type="button"
+            disabled={carregando}
+            onClick={() => setModalManualAberto(true)}
+            className="border rounded px-4 py-2 text-sm disabled:opacity-50"
+          >
+            Insumo manual
+          </button>
+          <button
+            type="button"
+            disabled={carregando}
+            onClick={() => setModalAberto(true)}
+            className="bg-marca-destaque text-marca-primaria font-medium rounded px-4 py-2 disabled:opacity-50"
+          >
+            Adicionar do catálogo
+          </button>
+        </div>
       </div>
 
       {erro && <p className="text-red-600 text-sm">{erro}</p>}
@@ -208,7 +224,7 @@ export default function InsumosPage() {
         {carregando ? (
           <p className="text-gray-500">Carregando...</p>
         ) : linhas.length === 0 ? (
-          <p className="text-gray-500 text-sm">Nenhum insumo ainda. Use “Adicionar do catálogo”.</p>
+          <p className="text-gray-500 text-sm">Nenhum insumo ainda. Use “Adicionar do catálogo” ou “Insumo manual”.</p>
         ) : (
           <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto">
             <table className="w-full border-collapse">
@@ -223,15 +239,17 @@ export default function InsumosPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {linhas.map(({ insumo, item }) => {
-                  const custo = calcularCustoInsumo(item?.custo_base ?? null, insumo.rendimento);
-                  const referencia = custo === null ? null : custoNaReferencia(custo, insumo.unidade_base);
+                {linhas.map(({ insumo, item, resolvido }) => {
+                  const referencia =
+                    resolvido.custo === null ? null : custoNaReferencia(resolvido.custo, insumo.unidade_base);
+                  const fatorReferencia = insumo.unidade_base === "un" ? 1 : 1000;
                   const abaixoDoMinimo =
                     insumo.estoque_minimo > 0 && insumo.estoque_atual < insumo.estoque_minimo;
                   return (
                     <tr key={insumo.id}>
                       <td className="py-4 px-4">
-                        <p className="text-gray-900">{item?.nome ?? "Item do catálogo não encontrado"}</p>
+                        <p className="text-gray-900">{resolvido.nome}</p>
+                        {resolvido.manual && <p className="text-xs text-gray-500">manual</p>}
                         {item && (
                           <p className="text-xs text-gray-500">
                             {item.categoria} · {formatarReais(item.preco)} {item.unidade_preco}
@@ -242,7 +260,16 @@ export default function InsumosPage() {
                         )}
                       </td>
                       <td className="py-4 px-4 text-sm whitespace-nowrap">
-                        {referencia ? (
+                        {resolvido.manual ? (
+                          <CampoNumero
+                            key={`custo-${insumo.custo_manual}`}
+                            valor={Math.round((insumo.custo_manual ?? 0) * fatorReferencia * 10000) / 10000}
+                            sufixo={`R$/${custoNaReferencia(0, insumo.unidade_base).rotulo}`}
+                            rotulo="Custo"
+                            minimo={0}
+                            onSalvar={(custo) => salvarCampo(insumo.id, { custo_manual: custo / fatorReferencia })}
+                          />
+                        ) : referencia ? (
                           `${formatarReais(referencia.valor)}/${referencia.rotulo}`
                         ) : !item ? (
                           "—"
@@ -313,6 +340,16 @@ export default function InsumosPage() {
             ))}
           </ul>
         </section>
+      )}
+
+      {modalManualAberto && (
+        <InsumoManualModal
+          onConfirmar={async (nome, unidadeBase, custoManual) => {
+            await criarInsumoManual(nome, unidadeBase, custoManual, insumos);
+            setModalManualAberto(false);
+          }}
+          onFechar={() => setModalManualAberto(false)}
+        />
       )}
 
       {modalAberto && (

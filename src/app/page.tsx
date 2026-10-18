@@ -16,6 +16,16 @@ function IconeCaixaDinheiro() {
   );
 }
 
+function IconePizza() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" aria-hidden="true">
+      <path d="M12 21 3.5 5.5a14 14 0 0 1 17 0L12 21Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+      <circle cx="10" cy="9" r="1.2" fill="currentColor" />
+      <circle cx="14" cy="12" r="1.2" fill="currentColor" />
+    </svg>
+  );
+}
+
 function IconeCaixote() {
   return (
     <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" aria-hidden="true">
@@ -59,6 +69,12 @@ const ATALHOS = [
     href: "/caixa",
     label: "Caixa",
     Icone: IconeCaixaDinheiro,
+  },
+  {
+    href: "/produtos",
+    label: "Produtos",
+    Icone: IconePizza,
+    somenteAdmin: true,
   },
   {
     href: "/insumos",

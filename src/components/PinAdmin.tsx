@@ -90,7 +90,7 @@ export default function PinAdmin({ children }: { children: React.ReactNode }) {
           <h1 className="text-lg font-semibold">{criando ? "Criar PIN de admin" : "PIN de admin"}</h1>
           <p className="text-sm text-gray-500 mt-1">
             {criando
-              ? "Ainda não há PIN cadastrado. Crie um de 4 a 6 dígitos — ele será pedido pra abrir Insumos, Funcionários e Configurações."
+              ? "Ainda não há PIN cadastrado. Crie um de 4 a 6 dígitos — ele será pedido pra abrir Produtos, Insumos, Funcionários e Configurações."
               : "Digite o PIN pra acessar esta tela."}
           </p>
         </div>
